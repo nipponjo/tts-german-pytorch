@@ -1,0 +1,3 @@
+fastpitch_de:
+  type: fastpitch
+  path: pretrained/fastpitch_de.pth

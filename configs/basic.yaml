@@ -1,0 +1,15 @@
+# training
+epochs: 500
+
+random_seed: False
+
+weight_decay: 1.0e-6
+
+use_cuda_if_available: True
+
+balanced_sampling: False
+
+# vocoder
+vocoder_state_path: pretrained/hifigan-thor-v1/hifigan-thor.pth
+vocoder_config_path: pretrained/hifigan-thor-v1/config.json
+
