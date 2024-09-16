@@ -38,11 +38,11 @@ def text_collate_fn(batch: List[torch.Tensor]):
 
 class FastPitch(_FastPitch):
     def __init__(self,
-                 checkpoint: str = None,
-                 device=None,
+                 checkpoint: str = None,                
                  **kwargs):
         from models.fastpitch import net_config
-        sds = torch.load(checkpoint)
+        sds = torch.load(checkpoint, map_location='cpu')
+        
         if 'config' in sds:
             net_config = sds['config']
         if 'net_config' in sds:
@@ -53,23 +53,11 @@ class FastPitch(_FastPitch):
         # if checkpoint is not None:
         self.load_state_dict(sds['model'])
 
-        if device is None:
-            device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.device = torch.device(device=device)
-
         self.eval()
-
-    def cuda(self, device=None):        
-        self.device = torch.device('cuda')
-        return super().cuda(device=device)
-
-    def cpu(self):
-        self.device = torch.device('cpu')
-        return super().cpu()
-
-    def to(self, device=None, **kwargs):
-        self.device = device
-        return super().to(device=device, **kwargs)
+        
+    @property
+    def device(self):
+        return next(self.parameters()).device
 
     def _tokenize(self, utterance: str):
         return text.text_to_tokens(utterance)  # , append_space=False)
@@ -201,7 +189,7 @@ class FastPitch2Wave(nn.Module):
         super().__init__()
 
         # from models.fastpitch import net_config
-        state_dicts = torch.load(model_sd_path)
+        state_dicts = torch.load(model_sd_path, map_location='cpu')
         # if 'config' in state_dicts:
         #     net_config = state_dicts['config']
 
@@ -219,6 +207,10 @@ class FastPitch2Wave(nn.Module):
         self.denoiser = Denoiser(vocoder)
 
         self.eval()
+        
+    @property
+    def device(self):
+        return next(self.parameters()).device
 
     def forward(self, x):
         return x
